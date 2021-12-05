@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
 #generate dictionary with pickle
 from collections import defaultdict
 import pickle
@@ -17,7 +16,7 @@ import sys
 
 def words(reviews):
   # read from topic table
-    topic = pd.read_csv('/Users/violaliu/Desktop/hw/topics.csv')
+    topic = pd.read_csv('/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/topics.csv')
     sorted_reviews = reviews.sort_values(by=['compound'], ascending=False)
     total_size = len(sorted_reviews)
     good_reviews = sorted_reviews.iloc[:total_size // 3, :]
@@ -52,7 +51,7 @@ def words(reviews):
 
 
 def generate_suggestions(good_list, bad_list):
-    with open('/Users/violaliu/Desktop/hw/suggestion.pickle', 'rb') as handle:
+    with open('/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/suggestion.pickle', 'rb') as handle:
         suggestion_dict = pickle.load(handle)
     good_suggestion = []
     bad_suggestion = []
@@ -68,9 +67,9 @@ def generate_suggestions(good_list, bad_list):
 
 def filters(shop, city, state, period):
     if period == "pre covid":
-        reviews = pd.read_csv('/Users/violaliu/Desktop/hw/pre_covid_combined.csv')
+        reviews = pd.read_csv('/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/pre_covid_combined.csv')
     else:
-        reviews = pd.read_csv('/Users/violaliu/Desktop/hw/after_covid_combined.csv')
+        reviews = pd.read_csv('/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/after_covid_combined.csv')
     reviews = reviews[reviews['name'] == shop]
     reviews = reviews[reviews['city'] == city]
     reviews = reviews[reviews['state'] == state]
