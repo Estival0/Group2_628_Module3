@@ -13,19 +13,40 @@ library(reticulate)
 #Sys.setenv(RETICULATE_PYTHON = "/Library/Frameworks/Python.framework/Versions/3.8/bin/python3")
 #Renviron is here: /Library/Frameworks/R.framework/Versions/4.0/Resources/etc
 
-py_install("pandas")
-use_python('/Users/maritmcquaig/Library/r-miniconda/envs/r-reticulate/bin/python', require=T)
+#py_install("pandas")
+use_python('/Library/Frameworks/Python.framework/Versions/3.8/bin/python3', require=T)
 source_python("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/generate_suggestions.py")
-R.home()
 
-#shop <- 'The Waffle Window'
-#city <- 'Portland'
-#period <- "pre covid"
-#state <- "OR"
-#suggestions = main_func(shop, city, state, period)
-#length(suggestions)
-#good_suggestion = suggestions[0:1]
-#bad_suggestion = suggestions[2:2]
+
+shop <- 'The Waffle Window'
+city <- 'Portland'
+period <- "pre covid"
+state <- "OR"
+suggestions = main_func(shop, city, state, period)
+length(suggestions)
+good_suggestion = suggestions[0:1]
+bad_suggestion = suggestions[2:2]
+good_suggestion
+
+
+
+
+
+#business details
+c <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/covid.csv")
+pc <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/precovid.csv")
+biz <- read.csv("/Users/maritmcquaig/Desktop/clean_business.csv")
+cbiz <- c['business_id']
+pcbiz <- pc['business_id']
+ids <- unique(intersect(cbiz,pcbiz))
+biz <- biz[c('business_id','name','address','city','state','stars','review_count')]
+cols = c('business_id','name','address','city','state','stars','review_count')
+business <- data.frame(matrix(nrow = 0, ncol = length(cols)))
+colnames(business) <- cols
+for (i in 1:length(ids[,1])){
+  business[nrow(business)+1,] = biz[which(biz$business_id == ids[i,1]),]
+}
+
 
 #plot
 c <- read.csv("/Users/maritmcquaig/Documents/stat628/module3/covid.csv")
@@ -46,11 +67,9 @@ sidebar <- dashboardSidebar(
     menuItem("Data", tabName = "data"),
     menuItem("Key Findings", tabName = "results"),
     menuItem("Business Suggestions", tabName = "suggestions")
-  ),
-  sidebarMenu(
-    selectInput("city", "Choose a state/province:",
-                choices = c('BC', 'CO', 'FL', 'GA', 'MA', 'OR', 'TX'))
   )
+  
+  
   
 )
 
@@ -62,8 +81,8 @@ body <- dashboardBody(
   tabItems(
     tabItem(tabName = "data",
             h2("Yelp Reviews of Ice Cream Shops Since March 2019"),
-            fluidRow(box(plotOutput("plot1", height = 250)),
-                     box(h5("All conclusions presented on this site come from Yelp reviews left from March 2019 through January 2021. Since shutdowns associated with Covid-19 began in the United States around mid-march, we split our dataset into two around that time. We also removed a one month window of data (3/1/20-4/1/20), to avoid any confusion in reviews left around the very early stages of the pandemic and to account for different states closing down at different rates. ")))
+            fluidRow(box(plotOutput("plot1", height = 250))),
+            fluidRow(box(h5("All conclusions presented on this site come from Yelp reviews left from March 2019 through January 2021. Since shutdowns associated with Covid-19 began in the United States around mid-march, we split our dataset into two around that time. We also removed a one month window of data (3/1/20-4/1/20), to avoid any confusion in reviews left around the very early stages of the pandemic and to account for different states closing down at different rates. ")))
             
     ),
       tabItem(tabName = "results",
@@ -71,7 +90,15 @@ body <- dashboardBody(
               
       ),   
     tabItem(tabName = "suggestions",
-            h2("Business Suggestions")
+            h2("Business Suggestions"),
+            selectInput("state", "Choose a state/province:",
+                        choices = c('BC', 'CO', 'FL', 'GA', 'MA', 'OR', 'TX')),
+            uiOutput("city"),
+            uiOutput("shop"),
+            selectInput("period","Choose a time period:",
+                        choices = c("pre covid", "covid")),
+            fluidRow(box(tableOutput("good"),title = "What's going right for your shop:")),
+            fluidRow(box(tableOutput("bad"),title = "Where your shop can improve:"))
     )
   )
 )
@@ -97,6 +124,18 @@ server <- function(input, output, session) {
       xlab("Date")+
       ylab("Number of Reviews")+
       labs(col = "Time Period")
+  })
+  output$city <- renderUI ({
+    selectInput("city", "Choose a city:", choices = sort(unique(subset(business,business$state == input$state)$city)))
+  })
+  output$shop <- renderUI ({
+    selectInput("shop","Choose a business:", choices = sort(unique(subset(business,business$state == input$state & business$city == input$city)$name)))
+  })
+  output$good <- renderTable({
+    unname(as.data.frame(main_func(input$shop, input$city, input$state, input$period)[1]))
+  })
+  output$bad <- renderTable({
+    unname(as.data.frame(main_func(input$shop, input$city, input$state, input$period)[2]))
   })
 }
 
