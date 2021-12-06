@@ -10,26 +10,10 @@ library(dplyr)
 library(lubridate)
 library(scales)
 library(reticulate)
-#Sys.setenv(RETICULATE_PYTHON = "/Library/Frameworks/Python.framework/Versions/3.8/bin/python3")
-#Renviron is here: /Library/Frameworks/R.framework/Versions/4.0/Resources/etc
 
-#py_install("pandas")
+#for reticulate
 use_python('/Library/Frameworks/Python.framework/Versions/3.8/bin/python3', require=T)
 source_python("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/generate_suggestions.py")
-
-
-shop <- 'The Waffle Window'
-city <- 'Portland'
-period <- "pre covid"
-state <- "OR"
-suggestions = main_func(shop, city, state, period)
-length(suggestions)
-good_suggestion = suggestions[0:1]
-bad_suggestion = suggestions[2:2]
-good_suggestion
-
-
-
 
 
 #business details
