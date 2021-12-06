@@ -17,8 +17,8 @@ source_python("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/generate_
 
 
 #business details
-c <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/covid.csv")
-pc <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/precovid.csv")
+c <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/covid.csv")
+pc <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/precovid.csv")
 biz <- read.csv("/Users/maritmcquaig/Desktop/clean_business.csv")
 cbiz <- c['business_id']
 pcbiz <- pc['business_id']
@@ -33,8 +33,6 @@ for (i in 1:length(ids[,1])){
 
 
 #plot
-c <- read.csv("/Users/maritmcquaig/Documents/stat628/module3/covid.csv")
-pc <- read.csv("/Users/maritmcquaig/Documents/stat628/module3/precovid.csv")
 pc$date <- format(as.POSIXct(pc$date,format='%Y-%m-%d %H:%M:%S'),format='%Y-%m-%d')
 pcdates <- pc %>% count(date)
 c$date <- format(as.POSIXct(c$date,format='%Y-%m-%d %H:%M:%S'),format='%Y-%m-%d')
@@ -64,9 +62,11 @@ body <- dashboardBody(
   ),
   tabItems(
     tabItem(tabName = "data",
-            h2("Yelp Reviews of Ice Cream Shops Since March 2019"),
+            h2("Yelp Reviews of Ice Cream Shops Since 03/2019"),
             fluidRow(box(plotOutput("plot1", height = 250))),
-            fluidRow(box(h5("All conclusions presented on this site come from Yelp reviews left from March 2019 through January 2021. Since shutdowns associated with Covid-19 began in the United States around mid-march, we split our dataset into two around that time. We also removed a one month window of data (3/1/20-4/1/20), to avoid any confusion in reviews left around the very early stages of the pandemic and to account for different states closing down at different rates. ")))
+            fluidRow(box(
+              h5("All conclusions presented on this site come from Yelp reviews left from March 2019 through January 2021. Since shutdowns associated with Covid-19 began in the United States around mid-march, we split our dataset into two around that time. We also removed a one month window of data (3/1/20-4/1/20), to avoid any confusion in reviews left around the very early stages of the pandemic and to account for different states closing down at different rates. "),
+              title = "Data Description"))
             
     ),
       tabItem(tabName = "results",

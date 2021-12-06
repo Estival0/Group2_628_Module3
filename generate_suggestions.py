@@ -67,9 +67,9 @@ def generate_suggestions(good_list, bad_list):
 
 def filters(shop, city, state, period):
     if period == "pre covid":
-        reviews = pd.read_csv('/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/pre_covid_combined.csv')
+        reviews = pd.read_csv('/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/pre_covid_combined.csv')
     else:
-        reviews = pd.read_csv('/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/after_covid_combined.csv')
+        reviews = pd.read_csv('/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/after_covid_combined.csv')
     reviews = reviews[reviews['name'] == shop]
     reviews = reviews[reviews['city'] == city]
     reviews = reviews[reviews['state'] == state]
