@@ -128,7 +128,7 @@ server <- function(input, output, session) {
 
 
 shinyApp(ui = ui, server = server)
-options(rsconnect.max.bundle.size=3145728000)
-deployApp("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/shiny")
+#options(rsconnect.max.bundle.size=3145728000)
+runApp("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/shiny")
 
 
