@@ -10,16 +10,17 @@ library(dplyr)
 library(lubridate)
 library(scales)
 library(reticulate)
+library(rsconnect)
 
 #for reticulate
-use_python('/Library/Frameworks/Python.framework/Versions/3.8/bin/python3', require=T)
-source_python("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/generate_suggestions.py")
+#use_python('/Library/Frameworks/Python.framework/Versions/3.8/bin/python3', require=T)
+source_python("generate_suggestions.py")
 
 
 #business details
-c <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/covid.csv")
-pc <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/precovid.csv")
-biz <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/clean_business.csv")
+c <- read.csv("covid.csv")
+pc <- read.csv("precovid.csv")
+biz <- read.csv("clean_business.csv")
 cbiz <- c['business_id']
 pcbiz <- pc['business_id']
 ids <- unique(intersect(cbiz,pcbiz))
@@ -33,6 +34,8 @@ for (i in 1:length(ids[,1])){
 
 
 #plot
+c <- read.csv("covid.csv")
+pc <- read.csv("precovid.csv")
 pc$date <- format(as.POSIXct(pc$date,format='%Y-%m-%d %H:%M:%S'),format='%Y-%m-%d')
 pcdates <- pc %>% count(date)
 c$date <- format(as.POSIXct(c$date,format='%Y-%m-%d %H:%M:%S'),format='%Y-%m-%d')
@@ -125,4 +128,7 @@ server <- function(input, output, session) {
 
 
 shinyApp(ui = ui, server = server)
+options(rsconnect.max.bundle.size=3145728000)
+deployApp("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/shiny")
+
 
