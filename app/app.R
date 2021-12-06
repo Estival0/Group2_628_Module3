@@ -19,7 +19,7 @@ source_python("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/generate_
 #business details
 c <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/covid.csv")
 pc <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/precovid.csv")
-biz <- read.csv("/Users/maritmcquaig/Desktop/clean_business.csv")
+biz <- read.csv("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/Data/clean_business.csv")
 cbiz <- c['business_id']
 pcbiz <- pc['business_id']
 ids <- unique(intersect(cbiz,pcbiz))
