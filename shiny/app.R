@@ -9,13 +9,7 @@ library(ggplot2)
 library(dplyr)
 library(lubridate)
 library(scales)
-library(reticulate)
 library(rsconnect)
-
-#for reticulate
-#use_python('/Library/Frameworks/Python.framework/Versions/3.8/bin/python3', require=T)
-source_python("generate_suggestions.py")
-
 
 #business details
 c <- read.csv("covid.csv")
@@ -44,6 +38,8 @@ pcdates <- pcdates %>% add_column(covid = "Pre-Covid-19")
 cdates <- cdates %>% add_column(covid = "Covid-19")
 alldates <- rbind(pcdates,cdates)
 
+sugg <- read.csv("sugg.csv")
+sugg$period[sugg$period=="after covid"] <- "covid"
 
 
 header <- dashboardHeader(title = "COVID-19 & Ice Cream Shops in the US")
@@ -119,16 +115,14 @@ server <- function(input, output, session) {
     selectInput("shop","Choose a business:", choices = sort(unique(subset(business,business$state == input$state & business$city == input$city)$name)))
   })
   output$good <- renderTable({
-    unname(as.data.frame(main_func(input$shop, input$city, input$state, input$period)[1]))
+    unname(sugg[which(sugg$name == input$shop & sugg$city == input$city & sugg$state == input$state & sugg$period == input$period),][4])
   })
   output$bad <- renderTable({
-    unname(as.data.frame(main_func(input$shop, input$city, input$state, input$period)[2]))
+    unname(sugg[which(sugg$name == input$shop & sugg$city == input$city & sugg$state == input$state & sugg$period == input$period),][5])
   })
 }
 
 
 shinyApp(ui = ui, server = server)
-#options(rsconnect.max.bundle.size=3145728000)
-runApp("/Users/maritmcquaig/Documents/GitHub/Group2_628_Module3/shiny")
 
 

@@ -5,7 +5,9 @@ account: maritmcquaig
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 5277913
-bundleId: 5336128
+bundleId: 5336151
 url: https://maritmcquaig.shinyapps.io/shiny/
-when: 1638824614.89441
-lastSyncTime: 1638824614.89444
+when: 1638825033.76166
+lastSyncTime: 1638825033.76171
+asMultiple: FALSE
+asStatic: FALSE
