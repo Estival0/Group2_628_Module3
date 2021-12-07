@@ -10,11 +10,12 @@ library(dplyr)
 library(lubridate)
 library(scales)
 library(rsconnect)
+library(openxlsx)
 
 #business details
-c <- read.csv("covid.csv")
-pc <- read.csv("precovid.csv")
-biz <- read.csv("clean_business.csv")
+c <- read.xlsx("covid.xlsx")
+pc <- read.xlsx("precovid.xlsx")
+biz <- read.xlsx("clean_business.xlsx")
 cbiz <- c['business_id']
 pcbiz <- pc['business_id']
 ids <- unique(intersect(cbiz,pcbiz))
@@ -28,8 +29,8 @@ for (i in 1:length(ids[,1])){
 
 
 #plot
-c <- read.csv("covid.csv")
-pc <- read.csv("precovid.csv")
+c <- read.xlsx("covid.xlsx")
+pc <- read.xlsx("precovid.xlsx")
 pc$date <- format(as.POSIXct(pc$date,format='%Y-%m-%d %H:%M:%S'),format='%Y-%m-%d')
 pcdates <- pc %>% count(date)
 c$date <- format(as.POSIXct(c$date,format='%Y-%m-%d %H:%M:%S'),format='%Y-%m-%d')
@@ -42,7 +43,7 @@ sugg <- read.csv("sugg.csv")
 sugg$period[sugg$period=="after covid"] <- "covid"
 
 
-c <- read.csv("covid.csv")
+c <- read.xlsx("covid.xlsx")
 l <- length(c$sentiment_type)
 table(c$sentiment_type)
 NEGATIVE = table(c$sentiment_type)[1]
@@ -54,7 +55,7 @@ da = data.frame(pct,sent)
 
 
 #precovid
-pc <- read.csv("precovid.csv")
+pc <- read.xlsx("precovid.xlsx")
 pl <- length(pc$sentiment_type)
 pNEGATIVE = table(pc$sentiment_type)[1]
 pNEUTRAL = table(pc$sentiment_type)[2]
@@ -63,7 +64,9 @@ ppct <- c(round((pNEGATIVE/pl)*100,2),round((pPOSITIVE/pl)*100,2))
 psent <- c("NEGATIVE","POSITIVE")
 pda = data.frame(ppct,psent)
 
+pdall <- read.xlsx("pre_covid_combined.xlsx")
 
+dall <- read.xlsx("after_covid_combined.xlsx")
 
 
 header <- dashboardHeader(title = "COVID-19 & Ice Cream Shops in the US")
@@ -91,6 +94,8 @@ body <- dashboardBody(
     ),
       tabItem(tabName = "results",
               h2("Key Findings"),
+              selectInput("state", "Choose a state/province:",
+                          choices = c('ALL','BC', 'CO', 'FL', 'GA', 'MA', 'OR', 'TX')),
               fluidRow(box(plotOutput("pcplot"),title = "Before Covid-19"),box(plotOutput("cplot"),title = "During Covid-19")),
               fluidRow(box(
                 h5("Customer ratings across the board declined slightly during the Covid-19 pandemic. Customer reviews during the pandemic in general had more concerns relating to service. That said, based on reviews customers are very satisfied with the quality of ice cream served, so keep up the good work there! More customers are requesting delivery during the pandemic, so this is another space for improvement for many ice cream shops."),
@@ -112,7 +117,7 @@ body <- dashboardBody(
 
 
 footer = dashboardFooter(
-  left = "Questions about this information? Contact mcquaig@wisc.edu",
+  left = "Questions about this information? Contact mcquaig@wisc.edu,qxia25@wisc.edu,xliu969@wisc.edu",
   right = NULL
 )
 
@@ -134,17 +139,48 @@ server <- function(input, output, session) {
       theme_light()
   })
   output$pcplot <- renderPlot({
-    ggplot(da,aes(x=psent,y = ppct))+
+    if (input$state == 'ALL') {
+        px = psent
+        py = ppct
+        pda = data.frame(px,py)
+    }
+    else{
+      pd <- pdall[which(pdall$state==input$state),]
+      pdl <- length(pd$sentiment_type)
+      pdNEGATIVE = table(pd$sentiment_type)[1]
+      pdNEUTRAL = table(pd$sentiment_type)[2]
+      pdPOSITIVE = table(pd$sentiment_type)[3]
+      px <- c("NEGATIVE","POSITIVE")
+      py <- c(round((pdNEGATIVE/pdl)*100,2),round((pdPOSITIVE/pdl)*100,2))
+      pda = data.frame(px,py)
+    }
+    
+    ggplot(pda,aes(x=px,y = py))+
       geom_bar(stat = "identity",fill = "pink")+
-      geom_text(aes(label=ppct),size = 7,position = position_dodge(width=.9),vjust=-.15)+
+      geom_text(aes(label=py),size = 7,position = position_dodge(width=.9),vjust=-.15)+
       xlab("Sentiment")+
       ylab("Percent")+
       theme_classic()
   })
   output$cplot <- renderPlot({
-    ggplot(da,aes(x=sent,y = pct))+
+    if (input$state == 'ALL') {
+      x = sent
+      y = pct
+      da = data.frame(x,y)
+    }
+    else{
+      d <- dall[which(dall$state==input$state),]
+      dl <- length(d$sentiment_type)
+      dNEGATIVE = table(d$sentiment_type)[1]
+      dNEUTRAL = table(d$sentiment_type)[2]
+      dPOSITIVE = table(d$sentiment_type)[3]
+      x <- c("NEGATIVE","POSITIVE")
+      y <- c(round((dNEGATIVE/dl)*100,2),round((dPOSITIVE/dl)*100,2))
+      da = data.frame(x,y)
+    }
+    ggplot(da,aes(x=x,y = y))+
       geom_bar(stat = "identity",fill = "pink")+
-      geom_text(aes(label=pct),size = 7,position = position_dodge(width=.9),vjust=-.15)+
+      geom_text(aes(label=y),size = 7,position = position_dodge(width=.9),vjust=-.15)+
       xlab("Sentiment")+
       ylab("Percent")+
       theme_classic()
