@@ -61,7 +61,6 @@ pNEUTRAL = table(pc$sentiment_type)[2]
 pPOSITIVE = table(pc$sentiment_type)[3]
 ppct <- c(round((pNEGATIVE/pl)*100,2),round((pPOSITIVE/pl)*100,2))
 psent <- c("NEGATIVE","POSITIVE")
-ppct
 pda = data.frame(ppct,psent)
 
 
@@ -74,9 +73,6 @@ sidebar <- dashboardSidebar(
     menuItem("Key Findings", tabName = "results"),
     menuItem("Business Suggestions", tabName = "suggestions")
   )
-  
-  
-  
 )
 
 body <- dashboardBody(
@@ -95,8 +91,10 @@ body <- dashboardBody(
     ),
       tabItem(tabName = "results",
               h2("Key Findings"),
-              fluidRow(box(plotOutput("pcplot", height = 250,width = 250),title = "Before Covid-19"),box(plotOutput("cplot", height = 250,width = 250),title = "During Covid-19"))
-              
+              fluidRow(box(plotOutput("pcplot"),title = "Before Covid-19"),box(plotOutput("cplot"),title = "During Covid-19")),
+              fluidRow(box(
+                h5("Customer ratings across the board declined slightly during the Covid-19 pandemic. Customer reviews during the pandemic in general had more concerns relating to service. That said, based on reviews customers are very satisfied with the quality of ice cream served, so keep up the good work there! More customers are requesting delivery during the pandemic, so this is another space for improvement for many ice cream shops."),
+                title = ""))
       ),   
     tabItem(tabName = "suggestions",
             h2("Business Suggestions"),
@@ -132,23 +130,24 @@ server <- function(input, output, session) {
       geom_vline(xintercept = as.numeric(as.Date('2020-04-01')), col = "black")+
       xlab("Date")+
       ylab("Number of Reviews")+
-      labs(col = "Time Period")
-  })
-  output$cplot <- renderPlot({
-    ggplot(da,aes(x=sent,y = pct))+
-      geom_bar( stat = "identity")+
-      geom_text(aes(label=pct),position = position_dodge(width=.9),vjust=-.25)+
-      xlab("Sentiment")+
-      ylab("Percent")+
-      title("During Covid-19")
+      labs(col = "Time Period")+
+      theme_light()
   })
   output$pcplot <- renderPlot({
     ggplot(da,aes(x=psent,y = ppct))+
-      geom_bar(stat = "identity")+
-      geom_text(aes(label=ppct),position = position_dodge(width=.9),vjust=-.25)+
+      geom_bar(stat = "identity",fill = "pink")+
+      geom_text(aes(label=ppct),size = 7,position = position_dodge(width=.9),vjust=-.15)+
       xlab("Sentiment")+
       ylab("Percent")+
-      title("Before Covid-19")
+      theme_classic()
+  })
+  output$cplot <- renderPlot({
+    ggplot(da,aes(x=sent,y = pct))+
+      geom_bar(stat = "identity",fill = "pink")+
+      geom_text(aes(label=pct),size = 7,position = position_dodge(width=.9),vjust=-.15)+
+      xlab("Sentiment")+
+      ylab("Percent")+
+      theme_classic()
   })
   output$city <- renderUI ({
     selectInput("city", "Choose a city:", choices = sort(unique(subset(business,business$state == input$state)$city)))
