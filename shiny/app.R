@@ -42,6 +42,31 @@ sugg <- read.csv("sugg.csv")
 sugg$period[sugg$period=="after covid"] <- "covid"
 
 
+c <- read.csv("covid.csv")
+l <- length(c$sentiment_type)
+table(c$sentiment_type)
+NEGATIVE = table(c$sentiment_type)[1]
+NEUTRAL = table(c$sentiment_type)[2]
+POSITIVE = table(c$sentiment_type)[3]
+pct <- c(round((NEGATIVE/l)*100,2),round((POSITIVE/l)*100,2))
+sent <- c("NEGATIVE","POSITIVE")
+da = data.frame(pct,sent)
+
+
+#precovid
+pc <- read.csv("precovid.csv")
+pl <- length(pc$sentiment_type)
+pNEGATIVE = table(pc$sentiment_type)[1]
+pNEUTRAL = table(pc$sentiment_type)[2]
+pPOSITIVE = table(pc$sentiment_type)[3]
+ppct <- c(round((pNEGATIVE/pl)*100,2),round((pPOSITIVE/pl)*100,2))
+psent <- c("NEGATIVE","POSITIVE")
+ppct
+pda = data.frame(ppct,psent)
+
+
+
+
 header <- dashboardHeader(title = "COVID-19 & Ice Cream Shops in the US")
 sidebar <- dashboardSidebar(
   sidebarMenu(
@@ -69,7 +94,8 @@ body <- dashboardBody(
             
     ),
       tabItem(tabName = "results",
-              h2("Key Findings")
+              h2("Key Findings"),
+              fluidRow(box(plotOutput("pcplot", height = 250,width = 250),title = "Before Covid-19"),box(plotOutput("cplot", height = 250,width = 250),title = "During Covid-19"))
               
       ),   
     tabItem(tabName = "suggestions",
@@ -107,6 +133,22 @@ server <- function(input, output, session) {
       xlab("Date")+
       ylab("Number of Reviews")+
       labs(col = "Time Period")
+  })
+  output$cplot <- renderPlot({
+    ggplot(da,aes(x=sent,y = pct))+
+      geom_bar( stat = "identity")+
+      geom_text(aes(label=pct),position = position_dodge(width=.9),vjust=-.25)+
+      xlab("Sentiment")+
+      ylab("Percent")+
+      title("During Covid-19")
+  })
+  output$pcplot <- renderPlot({
+    ggplot(da,aes(x=psent,y = ppct))+
+      geom_bar(stat = "identity")+
+      geom_text(aes(label=ppct),position = position_dodge(width=.9),vjust=-.25)+
+      xlab("Sentiment")+
+      ylab("Percent")+
+      title("Before Covid-19")
   })
   output$city <- renderUI ({
     selectInput("city", "Choose a city:", choices = sort(unique(subset(business,business$state == input$state)$city)))
